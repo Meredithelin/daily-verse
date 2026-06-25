@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#f3ece0"/>
+  <rect x="40" y="40" width="432" height="432" rx="64" fill="none" stroke="#d8ccb8" stroke-width="6"/>
+  <rect x="120" y="96" width="272" height="320" rx="20" fill="#9e3d3d"/>
+  <text x="256" y="210" font-family="Songti SC, STSong, SimSun, serif" font-size="150" fill="#f3ece0" text-anchor="middle" font-weight="700">诗</text>
+  <text x="256" y="362" font-family="Songti SC, STSong, SimSun, serif" font-size="150" fill="#f3ece0" text-anchor="middle" font-weight="700">笺</text>
+</svg>

@@ -1,0 +1,15 @@
+{
+  "name": "诗笺 · 每日一言",
+  "short_name": "诗笺",
+  "description": "每天一句名人名言或唐诗宋词，离线可读。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3ece0",
+  "theme_color": "#f3ece0",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

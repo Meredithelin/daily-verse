@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f3ece0" />
+<title>诗笺 · 每日一言</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<style>
+:root{
+  --paper:#f3ece0; --paper2:#ece2d2; --ink:#2a2622; --ink-soft:#6b6258;
+  --seal:#9e3d3d; --seal-soft:#b9534f; --line:#d8ccb8;
+  --card:#fbf7ef; --card-edge:#e6dcc8; --shadow:rgba(60,48,32,.16);
+  --accent:#7c6b50; --chip:#efe6d4; --chip-on:#9e3d3d;
+}
+html[data-theme="dark"]{
+  --paper:#15120e; --paper2:#1c1813; --ink:#ece4d6; --ink-soft:#a89f90;
+  --seal:#c95b54; --seal-soft:#d97a72; --line:#352e25;
+  --card:#1f1a14; --card-edge:#2c251c; --shadow:rgba(0,0,0,.45);
+  --accent:#b8a585; --chip:#2a231a; --chip-on:#c95b54;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;}
+body{
+  font-family:"Noto Serif SC","Source Han Serif SC","Songti SC",STSong,"SimSun",Georgia,serif;
+  color:var(--ink);
+  background:
+    radial-gradient(120% 80% at 50% -10%, var(--paper2), var(--paper) 60%) fixed;
+  display:flex;flex-direction:column;align-items:center;
+  min-height:100%;padding:max(16px,env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  transition:background .4s ease,color .4s ease;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:0;
+  background-image:radial-gradient(circle at 30% 20%, rgba(0,0,0,.025) 0 1px, transparent 1px),
+                   radial-gradient(circle at 70% 60%, rgba(0,0,0,.02) 0 1px, transparent 1px);
+  background-size:7px 7px,11px 11px;
+}
+html[data-theme="dark"] body::before{opacity:.35;
+  background-image:radial-gradient(circle at 30% 20%, rgba(255,255,255,.02) 0 1px, transparent 1px),
+                   radial-gradient(circle at 70% 60%, rgba(255,255,255,.015) 0 1px, transparent 1px);}
+.wrap{width:100%;max-width:560px;position:relative;z-index:1;}
+
+/* header */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.brand{display:flex;align-items:baseline;gap:10px;}
+.brand .seal{
+  font-size:15px;color:#fff;background:var(--seal);border-radius:6px;
+  padding:4px 7px;letter-spacing:2px;box-shadow:0 2px 6px var(--shadow);
+  writing-mode:horizontal-tb;
+}
+.brand h1{font-size:20px;margin:0;font-weight:600;letter-spacing:3px;}
+.date{font-size:13px;color:var(--ink-soft);text-align:right;line-height:1.5;}
+.iconbtn{
+  background:none;border:1px solid var(--line);color:var(--ink-soft);
+  width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;
+  display:grid;place-items:center;transition:.2s;
+}
+.iconbtn:hover{color:var(--seal);border-color:var(--seal);}
+.toprow{display:flex;align-items:center;gap:10px;}
+
+/* tabs */
+.tabs{display:flex;gap:8px;margin:6px 0 16px;flex-wrap:wrap;}
+.tab{
+  font-family:inherit;font-size:14px;border:none;cursor:pointer;
+  padding:7px 15px;border-radius:999px;background:var(--chip);color:var(--ink-soft);
+  letter-spacing:1px;transition:.2s;
+}
+.tab.on{background:var(--chip-on);color:#fff;box-shadow:0 3px 8px var(--shadow);}
+
+/* card */
+.card{
+  position:relative;background:var(--card);border:1px solid var(--card-edge);
+  border-radius:16px;padding:30px 26px 24px;box-shadow:0 10px 30px var(--shadow);
+  min-height:300px;overflow:hidden;transition:background .4s ease;
+}
+.card::after{
+  content:"";position:absolute;inset:7px;border:1px solid var(--card-edge);
+  border-radius:11px;pointer-events:none;opacity:.7;
+}
+.kind-badge{
+  position:absolute;top:16px;right:18px;font-size:12px;color:var(--seal);
+  border:1px solid var(--seal);border-radius:5px;padding:2px 7px;letter-spacing:2px;opacity:.85;
+}
+.fade{animation:fade .45s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* poem */
+.poem-title{font-size:22px;font-weight:600;margin:2px 0 4px;letter-spacing:2px;}
+.poem-meta{font-size:13px;color:var(--ink-soft);margin-bottom:18px;letter-spacing:1px;}
+.poem-body{font-size:19px;line-height:2.1;letter-spacing:1px;white-space:pre-wrap;}
+.poem-body.vertical{
+  writing-mode:vertical-rl;text-orientation:upright;
+  max-height:340px;white-space:normal;margin:6px 0 4px;
+  padding:4px 2px;letter-spacing:3px;line-height:2.4;
+}
+.section{margin-top:18px;border-top:1px dashed var(--line);padding-top:12px;}
+.section h4{margin:0 0 6px;font-size:13px;color:var(--seal);letter-spacing:2px;font-weight:600;}
+.section p{margin:0;font-size:15px;line-height:1.85;color:var(--ink-soft);}
+.tags{margin-top:16px;display:flex;gap:7px;flex-wrap:wrap;}
+.tags span{font-size:12px;color:var(--accent);background:var(--chip);padding:3px 10px;border-radius:999px;}
+details.section{cursor:pointer;}
+details summary{list-style:none;font-size:13px;color:var(--seal);letter-spacing:2px;font-weight:600;}
+details summary::-webkit-details-marker{display:none;}
+details summary::before{content:"▸ ";font-size:11px;}
+details[open] summary::before{content:"▾ ";}
+
+/* quote */
+.quote-mark{font-size:60px;color:var(--seal);opacity:.18;line-height:.4;height:26px;}
+.quote-text{font-size:25px;line-height:1.7;font-weight:500;letter-spacing:1px;margin:6px 0 22px;}
+.quote-by{font-size:15px;color:var(--ink-soft);text-align:right;letter-spacing:1px;}
+.quote-by b{color:var(--ink);font-weight:600;}
+.quote-note{margin-top:16px;font-size:14px;color:var(--ink-soft);line-height:1.8;
+  border-top:1px dashed var(--line);padding-top:12px;}
+
+/* line */
+.line-text{font-size:27px;line-height:1.8;font-weight:500;letter-spacing:2px;margin:18px 0 22px;}
+.line-src{font-size:14px;color:var(--ink-soft);text-align:right;}
+
+/* empty */
+.empty{display:grid;place-items:center;min-height:240px;color:var(--ink-soft);text-align:center;font-size:15px;line-height:2;}
+
+/* controls */
+.controls{display:flex;gap:10px;margin-top:16px;}
+.controls button{
+  flex:1;font-family:inherit;font-size:15px;cursor:pointer;
+  padding:12px 6px;border-radius:12px;border:1px solid var(--card-edge);
+  background:var(--card);color:var(--ink);transition:.2s;letter-spacing:1px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.controls button:hover{border-color:var(--seal);color:var(--seal);}
+.controls button.fav.on{background:var(--seal);color:#fff;border-color:var(--seal);}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;color:var(--ink-soft);font-size:13px;}
+.nav button{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:20px;font-family:inherit;padding:4px 12px;border-radius:8px;}
+.nav button:hover{color:var(--seal);}
+.foot{text-align:center;color:var(--ink-soft);font-size:12px;margin-top:22px;opacity:.7;letter-spacing:1px;}
+
+.toast{
+  position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:999px;
+  font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:50;letter-spacing:1px;
+}
+.toast.show{opacity:.95;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="seal">诗笺</span>
+      <h1>每日一言</h1>
+    </div>
+    <div class="toprow">
+      <div class="date" id="date"></div>
+      <button class="iconbtn" id="themeBtn" title="切换深色/浅色" aria-label="切换主题">☾</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main class="card" id="card"></main>
+
+  <div class="nav" id="navbar">
+    <button id="prev" aria-label="上一条">‹</button>
+    <span id="counter"></span>
+    <button id="next" aria-label="下一条">›</button>
+  </div>
+
+  <div class="controls">
+    <button id="shuffle">🎲 换一条</button>
+    <button id="vbtn" style="display:none">⇅ 竖排</button>
+    <button id="fav" class="fav">♡ 收藏</button>
+    <button id="copy">⎘ 复制</button>
+    <button id="share">↗ 分享</button>
+  </div>
+
+  <div class="foot">日积一句 · 心有诗书</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* === DATA:BEGIN === */
+window.DATA = {"poems":[{"type":"诗","title":"静夜思","cipai":"","author":"李白","dynasty":"唐","content":"床前明月光，疑是地上霜。\n举头望明月，低头思故乡。","translation":"床前洒落明亮的月光，恍惚像地上凝结的白霜。抬头望见天上明月，低头便思念起故乡。","appreciation":"二十字白描，写尽天涯游子的乡愁，千年来妇孺能诵。","tags":["思乡","明月"]},{"type":"诗","title":"春晓","cipai":"","author":"孟浩然","dynasty":"唐","content":"春眠不觉晓，处处闻啼鸟。\n夜来风雨声，花落知多少。","translation":"春夜酣睡不知天已亮，醒来听见处处鸟鸣。想起昨夜风雨阵阵，不知吹落了多少花瓣。","appreciation":"由听觉入笔，喜春又惜春，淡而有味。","tags":["春天","惜时"]},{"type":"诗","title":"登鹳雀楼","cipai":"","author":"王之涣","dynasty":"唐","content":"白日依山尽，黄河入海流。\n欲穷千里目，更上一层楼。","translation":"夕阳依着群山沉落，黄河奔流归入大海。想要望尽千里风光，就要再登上一层高楼。","appreciation":"写景中见哲理：境界要靠不断登高去拓展。","tags":["励志","壮阔"]},{"type":"诗","title":"相思","cipai":"","author":"王维","dynasty":"唐","content":"红豆生南国，春来发几枝。\n愿君多采撷，此物最相思。","translation":"红豆生长在南方，春天到来又抽出几枝。愿你多多采摘，因为它最能寄托相思。","appreciation":"借物寄情，明白如话而情意绵长。","tags":["相思","咏物"]},{"type":"诗","title":"鹿柴","cipai":"","author":"王维","dynasty":"唐","content":"空山不见人，但闻人语响。\n返景入深林，复照青苔上。","translation":"空寂的山中看不见人影，只听见有人说话的回声。夕阳的余晖透入深林，又映照在青苔之上。","appreciation":"以声衬静、以光写幽，禅意盎然，王维诗中有画。","tags":["山水","空寂"]},{"type":"诗","title":"送元二使安西","cipai":"","author":"王维","dynasty":"唐","content":"渭城朝雨浥轻尘，客舍青青柳色新。\n劝君更尽一杯酒，西出阳关无故人。","translation":"渭城清晨的细雨润湿了尘土，客舍旁柳色青翠如新。请你再饮尽这一杯酒吧，西出阳关就再无故人相伴了。","appreciation":"一杯送别酒，写尽人间不舍，后成《阳关三叠》。","tags":["送别","友情"]},{"type":"诗","title":"江雪","cipai":"","author":"柳宗元","dynasty":"唐","content":"千山鸟飞绝，万径人踪灭。\n孤舟蓑笠翁，独钓寒江雪。","translation":"群山中飞鸟绝迹，条条小路人影皆无。江上一叶孤舟，披蓑戴笠的老翁，独自在寒江风雪中垂钓。","appreciation":"天地俱寂中一点孤舟，写尽清高孤傲与不屈。","tags":["山水","孤高"]},{"type":"诗","title":"望庐山瀑布","cipai":"","author":"李白","dynasty":"唐","content":"日照香炉生紫烟，遥看瀑布挂前川。\n飞流直下三千尺，疑是银河落九天。","translation":"阳光照在香炉峰升起紫色烟雾，远看瀑布像挂在山前的大河。瀑布飞泻直下仿佛三千尺，疑是银河从九天倾落。","appreciation":"夸张奇绝，气势磅礴，尽显谪仙的浪漫想象。","tags":["山水","豪迈"]},{"type":"诗","title":"早发白帝城","cipai":"","author":"李白","dynasty":"唐","content":"朝辞白帝彩云间，千里江陵一日还。\n两岸猿声啼不住，轻舟已过万重山。","translation":"清晨告别彩云缭绕的白帝城，千里之外的江陵一日即可返还。两岸猿啼声还没停歇，轻快的小舟已穿过万重山岭。","appreciation":"遇赦东归的畅快尽在轻舟飞驰之间，欢愉流动。","tags":["山水","畅快"]},{"type":"诗","title":"黄鹤楼","cipai":"","author":"崔颢","dynasty":"唐","content":"昔人已乘黄鹤去，此地空余黄鹤楼。\n黄鹤一去不复返，白云千载空悠悠。\n晴川历历汉阳树，芳草萋萋鹦鹉洲。\n日暮乡关何处是？烟波江上使人愁。","translation":"仙人早已乘黄鹤离去，此地只空留这座黄鹤楼。黄鹤一去不再回还，千年白云空自悠悠。晴日里汉阳的树木清晰可见，鹦鹉洲上芳草茂盛。日暮时分故乡在何处？江上烟波让人满怀愁绪。","appreciation":"由仙迹写到乡愁，气象高远，被誉为唐人七律第一。","tags":["怀古","乡愁"]},{"type":"诗","title":"枫桥夜泊","cipai":"","author":"张继","dynasty":"唐","content":"月落乌啼霜满天，江枫渔火对愁眠。\n姑苏城外寒山寺，夜半钟声到客船。","translation":"月已西落乌鸦啼鸣、寒霜满天，江畔枫树与渔火相对，伴我愁眠。姑苏城外的寒山寺，半夜的钟声传到了客船上。","appreciation":"一声夜半钟，敲出羁旅愁怀，意境清冷悠远。","tags":["羁旅","秋夜"]},{"type":"诗","title":"登幽州台歌","cipai":"","author":"陈子昂","dynasty":"唐","content":"前不见古人，后不见来者。\n念天地之悠悠，独怆然而涕下。","translation":"向前望不见古代的贤人，向后看不到后来的来者。想到天地如此辽阔久远，独自悲伤得潸然落泪。","appreciation":"短短数语，写尽志士不遇的孤独与苍茫。","tags":["怀古","慷慨"]},{"type":"诗","title":"九月九日忆山东兄弟","cipai":"","author":"王维","dynasty":"唐","content":"独在异乡为异客，每逢佳节倍思亲。\n遥知兄弟登高处，遍插茱萸少一人。","translation":"独自在他乡做客旅之人，每逢佳节就格外思念亲人。遥想兄弟们登高的地方，插遍茱萸时，却少了我一人。","appreciation":"以对面着笔，从兄弟那头写自己之缺席，思亲更深。","tags":["思亲","重阳"]},{"type":"诗","title":"登高","cipai":"","author":"杜甫","dynasty":"唐","content":"风急天高猿啸哀，渚清沙白鸟飞回。\n无边落木萧萧下，不尽长江滚滚来。\n万里悲秋常作客，百年多病独登台。\n艰难苦恨繁霜鬓，潦倒新停浊酒杯。","translation":"风急天高猿啼悲哀，水清沙白鸟儿盘旋。无边的落叶萧萧而下，不尽的长江滚滚奔来。万里漂泊悲对秋景常年作客，一生多病又独自登台。世事艰难，愁恨使双鬓如霜，潦倒中刚刚停下了浊酒之杯。","appreciation":"沉郁顿挫，秋景与身世交融，被誉为古今七律之冠。","tags":["悲秋","身世"]},{"type":"诗","title":"凉州词","cipai":"","author":"王翰","dynasty":"唐","content":"葡萄美酒夜光杯，欲饮琵琶马上催。\n醉卧沙场君莫笑，古来征战几人回？","translation":"葡萄美酒盛在夜光杯中，正要畅饮，马上的琵琶却在催促出征。醉倒在沙场上请你莫要笑话，自古征战又有几人能生还？","appreciation":"豪放中藏悲凉，写尽戍边将士的旷达与无奈。","tags":["边塞","旷达"]},{"type":"诗","title":"赋得古原草送别","cipai":"","author":"白居易","dynasty":"唐","content":"离离原上草，一岁一枯荣。\n野火烧不尽，春风吹又生。\n远芳侵古道，晴翠接荒城。\n又送王孙去，萋萋满别情。","translation":"原野上茂盛的青草，一年一度地枯了又荣。野火烧不尽它的根，春风一吹又重新生长。芳草蔓延侵入古道，晴日里翠色连接着荒城。今日又送友人远去，萋萋芳草满含离别之情。","appreciation":"以野草的顽强生机起兴，再转入离情，浑然天成。","tags":["送别","生命"]},{"type":"词","title":"明月几时有","cipai":"水调歌头","author":"苏轼","dynasty":"宋","content":"明月几时有？把酒问青天。\n不知天上宫阙，今夕是何年。\n我欲乘风归去，又恐琼楼玉宇，高处不胜寒。\n起舞弄清影，何似在人间。\n\n转朱阁，低绮户，照无眠。\n不应有恨，何事长向别时圆？\n人有悲欢离合，月有阴晴圆缺，此事古难全。\n但愿人长久，千里共婵娟。","translation":"明月何时才有？我举杯问那青天。不知天上的宫阙，今夜又是哪一年。我想乘风回到天上，又怕那琼楼玉宇太高，经受不住寒冷。在月下起舞、与清影相伴，哪里比得上人间？月光转过朱红的楼阁，低照进雕花的门户，照着无眠的人。月儿不该对人有怨，为何偏在人离别时才圆？人有悲欢离合，月有阴晴圆缺，这种事自古难以两全。只愿亲人长久平安，纵隔千里也共赏这一轮明月。","appreciation":"由问月到达观，由出世到入世，旷达中含至情，中秋词之绝唱。","tags":["中秋","旷达","明月"]},{"type":"词","title":"赤壁怀古","cipai":"念奴娇","author":"苏轼","dynasty":"宋","content":"大江东去，浪淘尽，千古风流人物。\n故垒西边，人道是，三国周郎赤壁。\n乱石穿空，惊涛拍岸，卷起千堆雪。\n江山如画，一时多少豪杰。\n\n遥想公瑾当年，小乔初嫁了，雄姿英发。\n羽扇纶巾，谈笑间，樯橹灰飞烟灭。\n故国神游，多情应笑我，早生华发。\n人生如梦，一尊还酹江月。","translation":"大江滚滚东流，淘尽了千古风流人物。旧营垒的西边，人们说，那是三国周瑜大破曹军的赤壁。陡峭的乱石直插云霄，惊涛拍打江岸，卷起千万堆雪白的浪花。江山壮丽如画，一时间涌现多少英雄豪杰。遥想周瑜当年，小乔刚刚嫁给他，英姿勃发。他手摇羽扇、头戴纶巾，谈笑之间，曹军战船就灰飞烟灭。神游于古战场，多情的我应被笑过早生出白发。人生如梦，且洒一杯酒祭奠这江上的明月。","appreciation":"豪放词的巅峰，怀古伤己，于壮阔中见旷达。","tags":["怀古","豪放"]},{"type":"词","title":"乙卯正月二十日夜记梦","cipai":"江城子","author":"苏轼","dynasty":"宋","content":"十年生死两茫茫，不思量，自难忘。\n千里孤坟，无处话凄凉。\n纵使相逢应不识，尘满面，鬓如霜。\n\n夜来幽梦忽还乡，小轩窗，正梳妆。\n相顾无言，惟有泪千行。\n料得年年肠断处，明月夜，短松冈。","translation":"十年来生死相隔、两相茫茫，即使不去思量，也自然难以相忘。你的孤坟远在千里，无处诉说这凄凉。纵然相逢恐怕也认不出我了——我已尘满面、鬓如霜。昨夜梦中忽然回到故乡，看见你在小窗前正梳妆。两人相望无言，只有泪流千行。料想那年年让我柔肠寸断的地方，正是明月之夜、那长着矮松的山冈。","appreciation":"悼亡词的千古名篇，质朴深情，字字血泪。","tags":["悼亡","深情"]},{"type":"词","title":"寻寻觅觅","cipai":"声声慢","author":"李清照","dynasty":"宋","content":"寻寻觅觅，冷冷清清，凄凄惨惨戚戚。\n乍暖还寒时候，最难将息。\n三杯两盏淡酒，怎敌他、晚来风急？\n雁过也，正伤心，却是旧时相识。\n\n满地黄花堆积，憔悴损，如今有谁堪摘？\n守着窗儿，独自怎生得黑？\n梧桐更兼细雨，到黄昏、点点滴滴。\n这次第，怎一个愁字了得！","translation":"苦苦寻觅，却只剩冷清，满心凄惨忧戚。乍暖还寒的时节，最难调养将息。三两杯淡酒，怎抵得住傍晚的急风？大雁飞过，正令人伤心——原来是旧时相识。满地堆积着憔悴凋零的菊花，如今还有谁忍心去摘？独自守着窗子，怎么挨到天黑？黄昏时梧桐又添细雨，点点滴滴。这般光景，一个“愁”字怎能说尽！","appreciation":"叠字开篇，层层渲染孤寂晚景，愁极而工。","tags":["婉约","愁绪"]},{"type":"词","title":"昨夜雨疏风骤","cipai":"如梦令","author":"李清照","dynasty":"宋","content":"昨夜雨疏风骤，浓睡不消残酒。\n试问卷帘人，却道海棠依旧。\n知否，知否？应是绿肥红瘦。","translation":"昨夜雨点稀疏、风势急骤，沉睡一夜仍未消尽残余的醉意。试着问卷帘的侍女，她却说海棠还和原来一样。你可知道、可知道？应该是绿叶繁茂、红花凋零了。","appreciation":"一问一答间惜花伤春，“绿肥红瘦”炼字入神。","tags":["婉约","惜春"]},{"type":"词","title":"红藕香残","cipai":"一剪梅","author":"李清照","dynasty":"宋","content":"红藕香残玉簟秋。\n轻解罗裳，独上兰舟。\n云中谁寄锦书来？雁字回时，月满西楼。\n\n花自飘零水自流。\n一种相思，两处闲愁。\n此情无计可消除，才下眉头，却上心头。","translation":"红荷凋谢、香气消残，玉席透出秋凉。我轻轻解开罗裙，独自登上小船。云中有谁寄来书信？待大雁排字归来时，月光已洒满西楼。花儿独自飘落，流水独自流淌。同一种相思，化作两地的闲愁。这份情无法排遣，刚从眉间舒展，却又涌上心头。","appreciation":"写夫妻相思，清丽婉转，“才下眉头，却上心头”尤为传神。","tags":["相思","婉约"]},{"type":"词","title":"寒蝉凄切","cipai":"雨霖铃","author":"柳永","dynasty":"宋","content":"寒蝉凄切，对长亭晚，骤雨初歇。\n都门帐饮无绪，留恋处，兰舟催发。\n执手相看泪眼，竟无语凝噎。\n念去去，千里烟波，暮霭沉沉楚天阔。\n\n多情自古伤离别，更那堪，冷落清秋节！\n今宵酒醒何处？杨柳岸，晓风残月。\n此去经年，应是良辰好景虚设。\n便纵有千种风情，更与何人说？","translation":"秋蝉鸣声凄切，面对傍晚的长亭，一阵骤雨刚停。在京城门外设帐饯别，却毫无心绪，正留恋不舍，船家却催着开船。握着手相看泪眼，竟哽咽得说不出话。想到这一去，便是千里烟波，暮霭沉沉、楚地天空空阔无边。多情的人自古就为离别伤怀，更何况是在这冷落的清秋时节！今夜酒醒后身在何处？怕只在杨柳岸边，对着拂晓的残风与残月。这一去经年累月，纵有良辰美景也形同虚设。纵然有万种柔情，又能向谁去诉说？","appreciation":"铺叙离情层层递进，“杨柳岸晓风残月”为千古名句。","tags":["离别","婉约"]},{"type":"词","title":"伫倚危楼","cipai":"蝶恋花","author":"柳永","dynasty":"宋","content":"伫倚危楼风细细，望极春愁，黯黯生天际。\n草色烟光残照里，无言谁会凭阑意。\n\n拟把疏狂图一醉，对酒当歌，强乐还无味。\n衣带渐宽终不悔，为伊消得人憔悴。","translation":"久久倚着高楼，微风细细，极目远望，春愁黯然在天边升起。草色与烟霭笼在残阳里，我默默无言，又有谁能领会凭栏的心意？打算放纵一回、借酒求醉，对着美酒高歌，勉强欢乐却仍觉无味。衣带渐渐宽松，我也终究无悔，为了她，纵使憔悴也值得。","appreciation":"“衣带渐宽终不悔”被王国维借作治学第二境界。","tags":["相思","执着"]},{"type":"词","title":"元夕","cipai":"青玉案","author":"辛弃疾","dynasty":"宋","content":"东风夜放花千树。\n更吹落、星如雨。\n宝马雕车香满路。\n凤箫声动，玉壶光转，一夜鱼龙舞。\n\n蛾儿雪柳黄金缕，笑语盈盈暗香去。\n众里寻他千百度，蓦然回首，那人却在，灯火阑珊处。","translation":"东风仿佛在一夜间吹开千树繁花般的灯火，又像吹落漫天如雨的星星。华贵的车马来往，香气满路。箫声悠扬，明月流转，鱼龙花灯舞动了一整夜。盛装的女子戴着精致饰物，说说笑笑、带着幽香走过。我在人群中千百次地寻找她，蓦然回头，那人却独自站在灯火稀疏的地方。","appreciation":"以元宵繁华反衬冷清自守，末句成第三种人生境界。","tags":["元宵","怀人"]},{"type":"词","title":"为陈同甫赋壮词以寄之","cipai":"破阵子","author":"辛弃疾","dynasty":"宋","content":"醉里挑灯看剑，梦回吹角连营。\n八百里分麾下炙，五十弦翻塞外声。\n沙场秋点兵。\n\n马作的卢飞快，弓如霹雳弦惊。\n了却君王天下事，赢得生前身后名。\n可怜白发生！","translation":"醉中挑亮油灯端详宝剑，梦里回到号角连营的军中。把牛肉分给部下烤食，乐器奏起塞外的雄壮乐声，正是秋日沙场点兵。战马像的卢般飞驰，弓弦如惊雷般震响。立志为君王收复失地、成就一统大业，博得生前身后的英名。可叹的是，白发却已先生！","appreciation":"壮志凌云骤转“可怜白发生”，悲愤跌宕，催人泪下。","tags":["豪放","壮志"]},{"type":"词","title":"一曲新词酒一杯","cipai":"浣溪沙","author":"晏殊","dynasty":"宋","content":"一曲新词酒一杯，去年天气旧亭台。\n夕阳西下几时回？\n\n无可奈何花落去，似曾相识燕归来。\n小园香径独徘徊。","translation":"填一曲新词、饮一杯美酒，还是去年的天气、旧日的亭台。夕阳西下，何时才能再回来？花儿凋落，令人无可奈何；归来的燕子，却又似曾相识。我独自在小园飘香的小路上徘徊。","appreciation":"在伤春中悟时光流转，“无可奈何”一联工巧浑成。","tags":["伤春","哲思"]},{"type":"词","title":"春花秋月何时了","cipai":"虞美人","author":"李煜","dynasty":"五代","content":"春花秋月何时了？往事知多少。\n小楼昨夜又东风，故国不堪回首月明中。\n\n雕栏玉砌应犹在，只是朱颜改。\n问君能有几多愁？恰似一江春水向东流。","translation":"春花秋月何时才会了结？往事又知道多少。小楼昨夜又吹来东风，月明之中实在不忍回首故国。当年的雕栏玉砌应该还在，只是当年的容颜已改。要问你能有多少愁？恰如一江春水滚滚向东奔流。","appreciation":"亡国之君的血泪绝唱，以江水喻愁，绵长无尽。","tags":["亡国","愁绪"]},{"type":"词","title":"无言独上西楼","cipai":"相见欢","author":"李煜","dynasty":"五代","content":"无言独上西楼，月如钩。\n寂寞梧桐深院锁清秋。\n\n剪不断，理还乱，是离愁。\n别是一般滋味在心头。","translation":"默默无言，独自登上西楼，天上月牙如钩。梧桐寂寞地立着，深深的庭院锁住了一片清秋。那剪也剪不断、理还更乱的，正是离别的愁绪。它另有一种说不出的滋味，缠绕在心头。","appreciation":"以“剪不断、理还乱”状写离愁，化抽象为可触。","tags":["离愁","婉约"]},{"type":"词","title":"纤云弄巧","cipai":"鹊桥仙","author":"秦观","dynasty":"宋","content":"纤云弄巧，飞星传恨，银汉迢迢暗度。\n金风玉露一相逢，便胜却人间无数。\n\n柔情似水，佳期如梦，忍顾鹊桥归路。\n两情若是久长时，又岂在朝朝暮暮。","translation":"轻盈的云彩变幻出巧妙花样，流星传递着离恨，牛郎织女在迢迢银河间悄悄相会。在这秋风白露的时节一相逢，便胜过人间无数次的相聚。柔情似水绵绵，欢会如梦短暂，怎忍心回看那鹊桥归路。两人的感情若是长久，又何必在乎朝朝暮暮的厮守。","appreciation":"翻七夕旧题出新意，“两情久长”一句境界顿高。","tags":["七夕","爱情"]}],"quotes":[{"quote":"学而时习之，不亦说乎？","author":"孔子","source":"《论语·学而》","note":"讲学习贵在反复温习实践，从中得乐。","origin":"中"},{"quote":"知之为知之，不知为不知，是知也。","author":"孔子","source":"《论语·为政》","note":"对待知识要诚实，承认无知才是真智慧。","origin":"中"},{"quote":"己所不欲，勿施于人。","author":"孔子","source":"《论语·颜渊》","note":"待人处世的恕道：不把自己不愿承受的强加于人。","origin":"中"},{"quote":"三人行，必有我师焉；择其善者而从之，其不善者而改之。","author":"孔子","source":"《论语·述而》","note":"虚心向他人学习，取长补短。","origin":"中"},{"quote":"岁寒，然后知松柏之后凋也。","author":"孔子","source":"《论语·子罕》","note":"以松柏喻人，逆境中方见操守。","origin":"中"},{"quote":"敏而好学，不耻下问。","author":"孔子","source":"《论语·公冶长》","note":"求学应勤勉而不以请教于人为耻。","origin":"中"},{"quote":"吾日三省吾身：为人谋而不忠乎？与朋友交而不信乎？传不习乎？","author":"曾子","source":"《论语·学而》","note":"修身要每日反省自己的忠、信与学习。","origin":"中"},{"quote":"千里之行，始于足下。","author":"老子","source":"《道德经》","note":"远大目标须从眼前的第一步做起。","origin":"中"},{"quote":"知人者智，自知者明。","author":"老子","source":"《道德经》","note":"了解他人是智慧，认清自己更为可贵。","origin":"中"},{"quote":"上善若水，水善利万物而不争。","author":"老子","source":"《道德经》","note":"以水喻最高的德行：滋养万物而不争名。","origin":"中"},{"quote":"生于忧患，死于安乐。","author":"孟子","source":"《孟子·告子下》","note":"忧患使人奋发图存，安逸则使人衰亡。","origin":"中"},{"quote":"富贵不能淫，贫贱不能移，威武不能屈，此之谓大丈夫。","author":"孟子","source":"《孟子·滕文公下》","note":"大丈夫立身的三条操守标准。","origin":"中"},{"quote":"老吾老，以及人之老；幼吾幼，以及人之幼。","author":"孟子","source":"《孟子·梁惠王上》","note":"由爱自己的亲人推及爱他人，是仁政之本。","origin":"中"},{"quote":"天时不如地利，地利不如人和。","author":"孟子","source":"《孟子·公孙丑下》","note":"事业成败，人心和合最为关键。","origin":"中"},{"quote":"锲而不舍，金石可镂。","author":"荀子","source":"《荀子·劝学》","note":"坚持不懈，再坚硬之物也能雕穿，喻治学贵恒。","origin":"中"},{"quote":"不积跬步，无以至千里；不积小流，无以成江海。","author":"荀子","source":"《荀子·劝学》","note":"大成就由点滴积累而来。","origin":"中"},{"quote":"青，取之于蓝，而青于蓝。","author":"荀子","source":"《荀子·劝学》","note":"后学经努力可超越前人，即青出于蓝。","origin":"中"},{"quote":"博学之，审问之，慎思之，明辨之，笃行之。","author":"子思（《礼记》作者传）","source":"《礼记·中庸》","note":"为学的五个递进环节，由学到行。","origin":"中"},{"quote":"路漫漫其修远兮，吾将上下而求索。","author":"屈原","source":"《离骚》","note":"前路虽远，仍坚持不懈地探求真理与理想。","origin":"中"},{"quote":"亦余心之所善兮，虽九死其犹未悔。","author":"屈原","source":"《离骚》","note":"为坚守心中所认定的美好，纵死无悔。","origin":"中"},{"quote":"先天下之忧而忧，后天下之乐而乐。","author":"范仲淹","source":"《岳阳楼记》","note":"以天下为己任的家国情怀。","origin":"中"},{"quote":"业精于勤，荒于嬉；行成于思，毁于随。","author":"韩愈","source":"《进学解》","note":"学业德行成于勤勉思考，毁于嬉游随便。","origin":"中"},{"quote":"会当凌绝顶，一览众山小。","author":"杜甫","source":"《望岳》","note":"抒发登临绝顶、俯视群山的壮志豪情。","origin":"中"},{"quote":"长风破浪会有时，直挂云帆济沧海。","author":"李白","source":"《行路难·其一》","note":"虽处困境仍坚信终将实现抱负。","origin":"中"},{"quote":"出师未捷身先死，长使英雄泪满襟。","author":"杜甫","source":"《蜀相》","note":"叹诸葛亮壮志未酬，引后世英雄共鸣。","origin":"中"},{"quote":"非淡泊无以明志，非宁静无以致远。","author":"诸葛亮","source":"《诫子书》","note":"唯有恬淡宁静，方能坚定志向、成就长远。","origin":"中"},{"quote":"勿以恶小而为之，勿以善小而不为。","author":"刘备（载于《三国志》裴注引）","source":"《三国志·蜀书·先主传》注","note":"刘备遗诏诫子，重在防微杜渐、积善成德。","origin":"中"},{"quote":"穷则独善其身，达则兼善天下。","author":"孟子","source":"《孟子·尽心上》","note":"困顿时修养自身，显达时造福天下。","origin":"中"},{"quote":"山重水复疑无路，柳暗花明又一村。","author":"陆游","source":"《游山西村》","note":"绝境之中常蕴含转机，喻困境后见希望。","origin":"中"},{"quote":"位卑未敢忘忧国。","author":"陆游","source":"《病起书怀》","note":"身处卑微仍心系国家安危。","origin":"中"},{"quote":"人生自古谁无死，留取丹心照汗青。","author":"文天祥","source":"《过零丁洋》","note":"以死明志，愿以忠贞气节留名青史。","origin":"中"},{"quote":"问渠那得清如许？为有源头活水来。","author":"朱熹","source":"《观书有感》","note":"以活水喻不断读书求知，方能心智常新。","origin":"中"},{"quote":"苟利国家生死以，岂因祸福避趋之。","author":"林则徐","source":"《赴戍登程口占示家人》","note":"只要有利于国家，纵生死亦在所不辞。","origin":"中"},{"quote":"我自横刀向天笑，去留肝胆两昆仑。","author":"谭嗣同","source":"《狱中题壁》","note":"戊戌变法殉难前所作，抒慷慨赴义之志。","origin":"中"},{"quote":"横眉冷对千夫指，俯首甘为孺子牛。","author":"鲁迅","source":"《自嘲》","note":"对敌冷峻不屈，对人民甘愿俯首奉献。","origin":"中"},{"quote":"为中华之崛起而读书。","author":"周恩来","source":"","note":"少年周恩来表明读书是为国家振兴而非个人功名。","origin":"中"},{"quote":"我们都生活在阴沟里，但仍有人仰望星空。","author":"奥斯卡·王尔德","source":"《温德米尔夫人的扇子》","note":"借达林顿勋爵之口道出困境中不灭的理想。","origin":"外"},{"quote":"凡是值得做的事，就值得把它做好。","author":"切斯特菲尔德勋爵","source":"《给儿子的信》","note":"强调对待任何事都应认真尽力。","origin":"外"},{"quote":"未经省察的人生不值得过。","author":"苏格拉底","source":"柏拉图《申辩篇》","note":"苏格拉底受审时为哲学思考辩护的名句。","origin":"外"},{"quote":"人不能两次踏进同一条河流。","author":"赫拉克利特","source":"残篇","note":"万物流变，世界永远处在变化之中。","origin":"外"},{"quote":"我思故我在。","author":"笛卡尔","source":"《方法论》","note":"以怀疑为起点确立的第一确定性。","origin":"外"},{"quote":"人是生而自由的，却无往不在枷锁之中。","author":"卢梭","source":"《社会契约论》","note":"开篇即点出自由与社会束缚的张力。","origin":"外"},{"quote":"有两样东西，越是经常和持久地思考它们，就越使心灵充满日新月异、有增无减的敬畏与赞叹：头顶的星空和心中的道德法则。","author":"康德","source":"《实践理性批判》","note":"刻于其墓碑的著名结语。","origin":"外"},{"quote":"凡是不能毁灭我的，必使我更强大。","author":"尼采","source":"《偶像的黄昏》","note":"出自“箴言与箭”一节。","origin":"外"},{"quote":"我无法教任何人任何东西，我只能使他们思考。","author":"苏格拉底","source":"","note":"苏格拉底式教学的精髓在于启发而非灌输。","origin":"外"},{"quote":"知识就是力量。","author":"弗朗西斯·培根","source":"","note":"强调知识对人改造世界的作用。","origin":"外"},{"quote":"生存还是毁灭，这是一个值得考虑的问题。","author":"莎士比亚","source":"《哈姆雷特》","note":"哈姆雷特独白，对生死与行动的拷问。","origin":"外"},{"quote":"凡墙皆是门。","author":"爱默生","source":"随笔","note":"鼓励把障碍看作通向新境的入口。","origin":"外"},{"quote":"信任你自己，每一颗心都跟随着那根铁弦的震颤。","author":"爱默生","source":"《论自助》","note":"自立精神的宣言，强调忠于自我。","origin":"外"},{"quote":"大多数人在平静的绝望中度过一生。","author":"梭罗","source":"《瓦尔登湖》","note":"批评世人困于庸常而不自觉。","origin":"外"},{"quote":"我步入丛林，因为我希望生活得有意义，只面对生活的本质，看看自己是否学得到生活的教导，免得临死时才发现自己不曾活过。","author":"梭罗","source":"《瓦尔登湖》","note":"解释独居瓦尔登湖的初衷。","origin":"外"},{"quote":"世界上只有一种英雄主义，那就是在认清生活真相之后依然热爱生活。","author":"罗曼·罗兰","source":"","note":"罗曼·罗兰对真正勇气的定义。","origin":"外"},{"quote":"为了使自己幸福，必须把幸福分给别人。","author":"罗曼·罗兰","source":"《约翰·克利斯朵夫》","note":"幸福在分享中成全。","origin":"外"},{"quote":"如果你因错过太阳而流泪，那么你也将错过群星。","author":"泰戈尔","source":"《飞鸟集》","note":"劝人放下遗憾，莫让悲伤遮蔽更多美好。","origin":"外"},{"quote":"天空不曾留下翅膀的痕迹，但我已飞过。","author":"泰戈尔","source":"《飞鸟集》","note":"重在经历本身，而非留下印记。","origin":"外"},{"quote":"生如夏花之绚烂，死如秋叶之静美。","author":"泰戈尔","source":"《飞鸟集》","note":"以四季意象写生与死的从容。","origin":"外"},{"quote":"通往光明要穿过黑暗的隧道。","author":"纪伯伦","source":"《先知》","note":"苦难是抵达光明的必经之路。","origin":"外"},{"quote":"工作是看得见的爱。","author":"纪伯伦","source":"《先知》","note":"把勤勉劳作视为爱的具体表达。","origin":"外"},{"quote":"重要的是，不要停止发问；好奇心自有其存在的理由。","author":"爱因斯坦","source":"《生活》杂志1955年访谈","note":"爱因斯坦谈对世界保持探究之心。","origin":"外"},{"quote":"现在是过去与未来之间一条无限纤细的界线。","author":"毛姆","source":"《月亮与六便士》","note":"提醒人活在当下，珍惜稍纵即逝的此刻。","origin":"外"},{"quote":"为了消遣而读书的习惯，是抵御人生几乎一切灾难的庇护所。","author":"毛姆","source":"《书与你》","note":"毛姆盛赞阅读对心灵的慰藉。","origin":"外"},{"quote":"热爱真理，但宽恕谬误。","author":"伏尔泰","source":"《哲学辞典》","note":"在坚守真理的同时保持对人的宽容。","origin":"外"},{"quote":"我们必须耕种自己的园地。","author":"伏尔泰","source":"《老实人》","note":"结尾名句，主张脚踏实地、勤恳劳作。","origin":"外"},{"quote":"人所能犯的最大错误，就是因为怕犯错而什么都不做。","author":"埃尔伯特·哈伯德","source":"","note":"鼓励行动，畏缩不前才是更大的失败。","origin":"外"},{"quote":"一个人可以被毁灭，但不能被打败。","author":"海明威","source":"《老人与海》","note":"圣地亚哥所体现的不屈精神。","origin":"外"},{"quote":"时间是组成生命的材料。","author":"本杰明·富兰克林","source":"《穷理查年鉴》","note":"珍惜时间即珍惜生命本身。","origin":"外"},{"quote":"你想拥有怎样的明天，今天就要怎样去活。","author":"歌德","source":"","note":"未来由当下的每一天塑造。","origin":"外"},{"quote":"凡是自强不息者，终能得救。","author":"歌德","source":"《浮士德》","note":"天使拯救浮士德灵魂时所唱，肯定不懈追求。","origin":"外"},{"quote":"真正的发现之旅不在于寻找新的风景，而在于拥有新的眼光。","author":"马塞尔·普鲁斯特","source":"《追忆似水年华》","note":"成长在于改变看世界的方式。","origin":"外"}],"lines":[{"line":"白日依山尽，黄河入海流。","author":"王之涣","dynasty":"唐","source":"《登鹳雀楼》","meaning":"夕阳依着山峦沉落，黄河奔流归入大海，写尽壮阔的天地气象。"},{"line":"欲穷千里目，更上一层楼。","author":"王之涣","dynasty":"唐","source":"《登鹳雀楼》","meaning":"想看到更远的风景，就要再登上一层楼，喻只有不断进取才能境界更高。"},{"line":"床前明月光，疑是地上霜。","author":"李白","dynasty":"唐","source":"《静夜思》","meaning":"床前洒落的月光，恍惚像地上的白霜，引出游子的思乡之情。"},{"line":"举头望明月，低头思故乡。","author":"李白","dynasty":"唐","source":"《静夜思》","meaning":"抬头望见明月，低头便思念起故乡，借月寄托乡愁。"},{"line":"会当凌绝顶，一览众山小。","author":"杜甫","dynasty":"唐","source":"《望岳》","meaning":"终要登上泰山之巅，俯瞰群山都显得渺小，抒发凌云壮志。"},{"line":"随风潜入夜，润物细无声。","author":"杜甫","dynasty":"唐","source":"《春夜喜雨》","meaning":"春雨随风在夜里悄然而至，无声地滋润万物，赞其默默奉献。"},{"line":"野火烧不尽，春风吹又生。","author":"白居易","dynasty":"唐","source":"《赋得古原草送别》","meaning":"野草烧不尽，春风一吹又重生，赞颂顽强不息的生命力。"},{"line":"洛阳亲友如相问，一片冰心在玉壶。","author":"王昌龄","dynasty":"唐","source":"《芙蓉楼送辛渐》","meaning":"若洛阳亲友问起我，就说我心如冰玉般纯洁正直。"},{"line":"海内存知己，天涯若比邻。","author":"王勃","dynasty":"唐","source":"《送杜少府之任蜀州》","meaning":"四海之内有知心朋友，纵隔天涯也如近邻，宽慰离别之情。"},{"line":"大漠孤烟直，长河落日圆。","author":"王维","dynasty":"唐","source":"《使至塞上》","meaning":"广漠中一缕孤烟笔直升起，黄河上落日浑圆，画出苍茫边塞景象。"},{"line":"独在异乡为异客，每逢佳节倍思亲。","author":"王维","dynasty":"唐","source":"《九月九日忆山东兄弟》","meaning":"独自漂泊在他乡，每到节日就格外思念亲人。"},{"line":"春眠不觉晓，处处闻啼鸟。","author":"孟浩然","dynasty":"唐","source":"《春晓》","meaning":"春日酣睡不知天亮，醒来听到处处鸟鸣，写出春晨的闲适。"},{"line":"前不见古人，后不见来者。","author":"陈子昂","dynasty":"唐","source":"《登幽州台歌》","meaning":"往前看不见古代贤人，往后望不到后来者，抒发孤独苍凉之感。"},{"line":"飞流直下三千尺，疑是银河落九天。","author":"李白","dynasty":"唐","source":"《望庐山瀑布》","meaning":"瀑布飞泻而下仿佛三千尺，疑似银河从九天倾落，极写其雄奇。"},{"line":"两岸猿声啼不住，轻舟已过万重山。","author":"李白","dynasty":"唐","source":"《早发白帝城》","meaning":"两岸猿啼声未歇，轻快的小舟已穿过千山万岭，写归途的畅快。"},{"line":"露从今夜白，月是故乡明。","author":"杜甫","dynasty":"唐","source":"《月夜忆舍弟》","meaning":"今夜起便是白露节气，总觉得故乡的月更明亮，寄寓思乡怀亲。"},{"line":"莫愁前路无知己，天下谁人不识君。","author":"高适","dynasty":"唐","source":"《别董大》","meaning":"不要担忧前路没有知己，天下谁会不认识你呢，豪迈地为友人壮行。"},{"line":"劝君更尽一杯酒，西出阳关无故人。","author":"王维","dynasty":"唐","source":"《送元二使安西》","meaning":"请再饮尽这杯酒吧，西出阳关就再无故人相伴，写离别的不舍。"},{"line":"君不见黄河之水天上来，奔流到海不复回。","author":"李白","dynasty":"唐","source":"《将进酒》","meaning":"黄河之水如从天而降，奔流入海不再回头，感叹时光一去不返。"},{"line":"乱花渐欲迷人眼，浅草才能没马蹄。","author":"白居易","dynasty":"唐","source":"《钱塘湖春行》","meaning":"繁花渐渐使人眼花缭乱，浅浅春草刚能没过马蹄，写早春生机。"},{"line":"商女不知亡国恨，隔江犹唱后庭花。","author":"杜牧","dynasty":"唐","source":"《泊秦淮》","meaning":"歌女不懂亡国之恨，隔江仍唱靡靡之音，讽刺世人苟安。"},{"line":"春蚕到死丝方尽，蜡炬成灰泪始干。","author":"李商隐","dynasty":"唐","source":"《无题·相见时难别亦难》","meaning":"春蚕到死丝才吐尽，蜡烛烧成灰泪才流干，喻至死不渝的深情。"},{"line":"夕阳无限好，只是近黄昏。","author":"李商隐","dynasty":"唐","source":"《登乐游原》","meaning":"夕阳美得无以复加，只可惜已临近黄昏，叹美好难以长久。"},{"line":"千山鸟飞绝，万径人踪灭。","author":"柳宗元","dynasty":"唐","source":"《江雪》","meaning":"群山中飞鸟绝迹，条条路上人影皆无，写出雪境的空寂孤绝。"},{"line":"问渠那得清如许，为有源头活水来。","author":"朱熹","dynasty":"宋","source":"《观书有感》","meaning":"问池水为何这般清澈，只因有源头活水不断注入，喻学习需不断汲取新知。"},{"line":"不识庐山真面目，只缘身在此山中。","author":"苏轼","dynasty":"宋","source":"《题西林壁》","meaning":"看不清庐山真貌，只因身处山中，喻当局者迷、需跳出方能看清全局。"},{"line":"但愿人长久，千里共婵娟。","author":"苏轼","dynasty":"宋","source":"《水调歌头·明月几时有》","meaning":"愿亲人长久安康，纵相隔千里也共赏这轮明月，寄托美好祝愿。"},{"line":"山重水复疑无路，柳暗花明又一村。","author":"陆游","dynasty":"宋","source":"《游山西村》","meaning":"山水重叠仿佛已无路可走，柳暗花明间忽现一座村庄，喻绝境中现转机。"},{"line":"等闲识得东风面，万紫千红总是春。","author":"朱熹","dynasty":"宋","source":"《春日》","meaning":"轻易便认出春风的面貌，万紫千红处处都是春天，赞春光烂漫。"},{"line":"接天莲叶无穷碧，映日荷花别样红。","author":"杨万里","dynasty":"宋","source":"《晓出净慈寺送林子方》","meaning":"莲叶连天一片无尽的碧绿，荷花映着朝阳分外红艳，绘出盛夏西湖美景。"},{"line":"生当作人杰，死亦为鬼雄。","author":"李清照","dynasty":"宋","source":"《夏日绝句》","meaning":"活着当做人中豪杰，死了也要做鬼中英雄，抒发刚烈气节。"},{"line":"人生自古谁无死，留取丹心照汗青。","author":"文天祥","dynasty":"宋","source":"《过零丁洋》","meaning":"自古以来谁能不死，要留一片忠心映照史册，表必死报国之志。"},{"line":"粉骨碎身浑不怕，要留清白在人间。","author":"于谦","dynasty":"明","source":"《石灰吟》","meaning":"纵使粉身碎骨也毫不畏惧，只为把清白留在人间，托物言志守节操。"},{"line":"问君能有几多愁，恰似一江春水向东流。","author":"李煜","dynasty":"五代","source":"《虞美人·春花秋月何时了》","meaning":"要问能有多少愁，恰如一江春水滚滚东流，把愁绪写得绵长无尽。"},{"line":"采菊东篱下，悠然见南山。","author":"陶渊明","dynasty":"东晋","source":"《饮酒·其五》","meaning":"在东篱下采撷菊花，悠然间望见南山，写隐居田园的闲适自得。"},{"line":"落红不是无情物，化作春泥更护花。","author":"龚自珍","dynasty":"清","source":"《己亥杂诗》","meaning":"凋落的花并非无情，化作春泥仍呵护新花，喻甘于奉献、生生不息。"}]};
+/* === DATA:END === */
+
+(function(){
+  const D = window.DATA;
+  // normalize into a unified list
+  const ALL = [];
+  (D.poems||[]).forEach(p=>ALL.push(Object.assign({kind:'poem'},p)));
+  (D.quotes||[]).forEach(q=>ALL.push(Object.assign({kind:'quote'},q)));
+  (D.lines||[]).forEach(l=>ALL.push(Object.assign({kind:'line'},l)));
+  ALL.forEach((it,i)=>{ it._id = stableId(it); it._n = i; });
+
+  function stableId(it){
+    const s = (it.content||'')+(it.quote||'')+(it.line||'')+(it.author||'');
+    let h=0; for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; }
+    return it.kind+'_'+(h>>>0).toString(36);
+  }
+
+  const TABS = [
+    {key:'today', name:'今日'},
+    {key:'quote', name:'名言'},
+    {key:'poem',  name:'诗词'},
+    {key:'line',  name:'名句'},
+    {key:'fav',   name:'♥ 收藏'},
+  ];
+
+  const LS_FAV='dv_favs', LS_THEME='dv_theme', LS_VERT='dv_vert';
+  let favs = load(LS_FAV, []);
+  let vertical = load(LS_VERT, false);
+
+  const state = { tab:'today', pool:[], idx:0 };
+
+  // ---------- helpers ----------
+  function load(k,def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def; }catch(e){ return def; } }
+  function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  function esc(s){ return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function dayHash(){
+    const d=new Date(); const s=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    let h=0; for(let i=0;i<s.length;i++) h=(h*131+s.charCodeAt(i))|0; return (h>>>0);
+  }
+  function poolFor(tab){
+    if(tab==='today') return ALL;
+    if(tab==='poem')  return ALL.filter(x=>x.kind==='poem');
+    if(tab==='quote') return ALL.filter(x=>x.kind==='quote');
+    if(tab==='line')  return ALL.filter(x=>x.kind==='line');
+    if(tab==='fav')   return ALL.filter(x=>favs.includes(x._id));
+    return ALL;
+  }
+  function isFav(it){ return it && favs.includes(it._id); }
+
+  // ---------- render ----------
+  function setTab(tab){
+    state.tab=tab;
+    state.pool=poolFor(tab);
+    if(tab==='today' && state.pool.length){ state.idx = dayHash()%state.pool.length; }
+    else state.idx=0;
+    renderTabs(); render();
+  }
+  function renderTabs(){
+    const el=document.getElementById('tabs'); el.innerHTML='';
+    TABS.forEach(t=>{
+      const b=document.createElement('button');
+      b.className='tab'+(state.tab===t.key?' on':'');
+      b.textContent = t.key==='fav' ? `♥ 收藏(${favs.length})` : t.name;
+      b.onclick=()=>setTab(t.key);
+      el.appendChild(b);
+    });
+  }
+  function current(){ return state.pool[state.idx]; }
+
+  function render(){
+    const card=document.getElementById('card');
+    const it=current();
+    const vbtn=document.getElementById('vbtn');
+    vbtn.style.display='none';
+    if(!it){
+      card.innerHTML = state.tab==='fav'
+        ? '<div class="empty">还没有收藏哦 ♡<br>读到喜欢的，点下方「收藏」吧</div>'
+        : '<div class="empty">暂无内容</div>';
+      updateMeta(); return;
+    }
+    let html='';
+    if(it.kind==='poem'){
+      const head = it.cipai ? (it.cipai + (it.title?(' · '+it.title):'')) : it.title;
+      vbtn.style.display='';
+      html=`<span class="kind-badge">${it.type==='词'?'词':'诗'}</span>
+        <div class="poem-title">${esc(head)}</div>
+        <div class="poem-meta">〔${esc(it.dynasty)}〕${esc(it.author)}</div>
+        <div class="poem-body${vertical?' vertical':''}">${esc(it.content)}</div>
+        ${it.translation?`<details class="section"><summary>译文</summary><p>${esc(it.translation)}</p></details>`:''}
+        ${it.appreciation?`<div class="section"><h4>赏析</h4><p>${esc(it.appreciation)}</p></div>`:''}
+        ${(it.tags&&it.tags.length)?`<div class="tags">${it.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`:''}`;
+    } else if(it.kind==='quote'){
+      html=`<span class="kind-badge">${it.origin==='外'?'外':'言'}</span>
+        <div class="quote-mark">&ldquo;</div>
+        <div class="quote-text">${esc(it.quote)}</div>
+        <div class="quote-by">—— <b>${esc(it.author)}</b>${it.source?(' 《'+esc(it.source.replace(/^《|》$/g,''))+'》'):''}</div>
+        ${it.note?`<div class="quote-note">${esc(it.note)}</div>`:''}`;
+    } else {
+      html=`<span class="kind-badge">句</span>
+        <div class="line-text">${esc(it.line)}</div>
+        <div class="line-src">——〔${esc(it.dynasty)}〕${esc(it.author)} 《${esc((it.source||'').replace(/^《|》$/g,''))}》</div>
+        ${it.meaning?`<div class="quote-note">${esc(it.meaning)}</div>`:''}`;
+    }
+    card.innerHTML=html;
+    card.classList.remove('fade'); void card.offsetWidth; card.classList.add('fade');
+    updateMeta();
+  }
+  function updateMeta(){
+    const it=current();
+    document.getElementById('counter').textContent =
+      state.pool.length ? `${state.idx+1} / ${state.pool.length}` : '';
+    const f=document.getElementById('fav');
+    if(isFav(it)){ f.classList.add('on'); f.innerHTML='♥ 已收藏'; }
+    else { f.classList.remove('on'); f.innerHTML='♡ 收藏'; }
+  }
+
+  // ---------- actions ----------
+  function shuffle(){
+    if(state.pool.length<=1) return render();
+    let n; do{ n=Math.floor(Math.random()*state.pool.length); }while(n===state.idx);
+    state.idx=n; render();
+  }
+  function step(d){
+    if(!state.pool.length) return;
+    state.idx=(state.idx+d+state.pool.length)%state.pool.length; render();
+  }
+  function toggleFav(){
+    const it=current(); if(!it) return;
+    const i=favs.indexOf(it._id);
+    if(i>=0){ favs.splice(i,1); toast('已取消收藏'); }
+    else { favs.push(it._id); toast('已收藏 ♥'); }
+    save(LS_FAV,favs); renderTabs(); updateMeta();
+    if(state.tab==='fav'){ state.pool=poolFor('fav'); if(state.idx>=state.pool.length) state.idx=Math.max(0,state.pool.length-1); render(); }
+  }
+  function asText(it){
+    if(!it) return '';
+    if(it.kind==='poem'){
+      const head=it.cipai?(it.cipai+(it.title?(' '+it.title):'')):it.title;
+      return `${head}\n〔${it.dynasty}〕${it.author}\n\n${it.content}`;
+    }
+    if(it.kind==='quote'){ return `${it.quote}\n—— ${it.author}${it.source?(' '+it.source):''}`; }
+    return `${it.line}\n——〔${it.dynasty}〕${it.author} ${it.source||''}`;
+  }
+  async function copy(){
+    const t=asText(current()); if(!t) return;
+    try{ await navigator.clipboard.writeText(t); toast('已复制到剪贴板'); }
+    catch(e){ const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已复制'); }
+  }
+  async function share(){
+    const t=asText(current()); if(!t) return;
+    if(navigator.share){ try{ await navigator.share({title:'诗笺 · 每日一言',text:t}); return; }catch(e){} }
+    copy();
+  }
+  function toggleVertical(){ vertical=!vertical; save(LS_VERT,vertical); render(); }
+
+  let toastTimer;
+  function toast(msg){
+    const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),1600);
+  }
+
+  // ---------- theme & date ----------
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme',t);
+    document.getElementById('themeBtn').textContent = t==='dark'?'☀':'☾';
+    document.querySelector('meta[name=theme-color]').setAttribute('content', t==='dark'?'#15120e':'#f3ece0');
+  }
+  function initTheme(){
+    let t=load(LS_THEME,null);
+    if(!t) t=(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';
+    applyTheme(t);
+  }
+  function showDate(){
+    const d=new Date(); const w=['日','一','二','三','四','五','六'][d.getDay()];
+    document.getElementById('date').innerHTML =
+      `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日<br>星期${w}`;
+  }
+
+  // ---------- bind ----------
+  document.getElementById('shuffle').onclick=shuffle;
+  document.getElementById('prev').onclick=()=>step(-1);
+  document.getElementById('next').onclick=()=>step(1);
+  document.getElementById('fav').onclick=toggleFav;
+  document.getElementById('copy').onclick=copy;
+  document.getElementById('share').onclick=share;
+  document.getElementById('vbtn').onclick=toggleVertical;
+  document.getElementById('themeBtn').onclick=()=>{
+    const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+    applyTheme(t); save(LS_THEME,t);
+  };
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft')step(-1); else if(e.key==='ArrowRight')step(1);
+    else if(e.key===' '){e.preventDefault();shuffle();}
+  });
+
+  initTheme(); showDate(); setTab('today');
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  }
+})();
+</script>
+</body>
+</html>
