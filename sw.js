@@ -1,6 +1,6 @@
 // 诗笺 · 每日一言 — Service Worker
 // 改版后请把 CACHE 版本号 +1 再 push，用户才能拿到更新。
-const CACHE = 'shijian-v1';
+const CACHE = 'shijian-v2';
 const ASSETS = [
   './',
   './index.html',
